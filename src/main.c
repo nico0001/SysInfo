@@ -1,8 +1,9 @@
 #include <stdio.h>
 
+
 int main()
 {
-	printf("Hello World!\n");
+	philosopher_problem();
 
 	return (0);
 }
