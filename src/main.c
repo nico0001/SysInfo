@@ -5,7 +5,7 @@ int main()
 {
 	prodCons_problem(2,2);
 	
-	philosopher_problem();
+	philosopher_problem(5);
 
 	return (0);
 }

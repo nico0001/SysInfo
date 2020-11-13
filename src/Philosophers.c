@@ -3,19 +3,20 @@
 #include <semaphore.h> 
 #include <stdio.h>
 
-#define N 5
 #define THINKING 0
 #define HUNGRY 1
 #define EATING 2
 #define LEFT (phnum + 4) % N
 #define RIGHT (phnum + 1) % N
-  
-int state[N];
-int phil[N] = { 0, 1, 2, 3, 4 };
 
-sem_t mutex; 
-sem_t S[N]; 
-  
+int state[8];
+int phil[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+
+sem_t S[8];
+int N;
+sem_t mutex;
+
 void test(int phnum) {
     if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING) {
         state[phnum] = EATING;
@@ -30,7 +31,6 @@ void test(int phnum) {
 // take up chopsticks
 void take_fork(int phnum){ 
     sem_wait(&mutex);
-    // state that hungry
     state[phnum] = HUNGRY;
     //printf("Philosopher %d is Hungry\n", phnum);
     // eat if neighbours are not eating
@@ -63,14 +63,17 @@ void* philosopher(void* num) {
     return num;
 }
   
-extern void philosopher_problem() {
+extern void philosopher_problem(int n_philo) {
+    N = n_philo;
     int i;
     pthread_t thread_id[N];
     // initialize the semaphores
     sem_init(&mutex, 0, 1);
-    for (i = 0; i < N; i++)
+    for (i = 0; i < N; i++){
         sem_init(&S[i], 0, 0);
+    }
     for (i = 0; i < N; i++) {
+        phil[i]=i;
         // create philosopher processes
         pthread_create(&thread_id[i], NULL, philosopher, &phil[i]);
         //printf("Philosopher %d is thinking\n", i);
@@ -79,7 +82,7 @@ extern void philosopher_problem() {
         pthread_join(thread_id[i], NULL);
 
     sem_destroy(&mutex);
-    for (i = 0; i < N; i++)
+    for (i = 0; i < 8; i++)
         sem_destroy(&S[i]);
     
     printf("Philo done\n");
