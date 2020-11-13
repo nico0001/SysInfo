@@ -1,9 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-
-int main()
+int main(int argc, char *argv[])
 {
-	prodCons_problem(2,2);
+	prodCons_problem(atoi(argv[1]),atoi(argv[2]));
 	
 	philosopher_problem();
 
