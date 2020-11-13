@@ -32,7 +32,7 @@ void producer(void)
 
         //début: section critique
         buffer[in] = item;
-        printf("Produced item %d\n", item);
+        //printf("Produced item %d\n", item);
         in = (in +1)%BUFSIZE;
         producedItems++;
         //fin: section critique
@@ -43,7 +43,7 @@ void producer(void)
         //wait between two productions
         while(rand() > RAND_MAX/10000);
     }
-    printf("Production finished\n");
+    //printf("Production finished\n");
     return;
 }
 
@@ -69,7 +69,7 @@ void consumer(void)
         //début: section critique
         item = buffer[out];
         buffer[out] = 0;
-        printf("Consumed item %d\n", item);
+        //printf("Consumed item %d\n", item);
         out = (out+1)%BUFSIZE;
         consumedItems++;
         //fin: section critique
@@ -80,14 +80,13 @@ void consumer(void)
         //wait between 2 consumptions
         while(rand() > RAND_MAX/10000);
     }
-    printf("Consumption finished\n");
+    //printf("Consumption finished\n");
     return;
 }
 
 
 extern void prodCons_problem(int nProds, int nCons) 
 {
-    printf("run\n");
     pthread_t prod[nProds],  cons[nCons];
     pthread_mutex_init(&mutex, NULL);
     sem_init(&empty, 0, BUFSIZE);
@@ -100,31 +99,31 @@ extern void prodCons_problem(int nProds, int nCons)
     {
         pthread_create(&prod[i], NULL, (void *)producer, (void *)&a[i]);
     }
-    printf("prods produced\n");
+    //printf("prods produced\n");
 
     for (int i = 0; i<nCons; i++)
     {
         pthread_create(&cons[i], NULL, (void *)consumer, (void *)&b[i]);
     }
-    printf("cons produced\n");
+    //printf("cons produced\n");
 
     for(int i = 0; i <nProds; i++)
     {
         pthread_join(prod[i], NULL);
     }
-    printf("prods joined\n");
+    //printf("prods joined\n");
 
     for(int i = 0; i<nCons; i++)
     {
         pthread_join(cons[i], NULL);
     }
-    printf("cons joined\n");
+    //printf("cons joined\n");
 
     pthread_mutex_destroy(&mutex);
     sem_destroy(&empty);
     sem_destroy(&full);
 
-    printf("done\n");
+    printf("prodCons done\n");
     return;
 }
 

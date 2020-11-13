@@ -4,9 +4,9 @@
 #include <stdio.h>
 
 #define N 5
-#define THINKING 2
+#define THINKING 0
 #define HUNGRY 1
-#define EATING 0
+#define EATING 2
 #define LEFT (phnum + 4) % N
 #define RIGHT (phnum + 1) % N
   
@@ -77,4 +77,10 @@ extern void philosopher_problem() {
     }
     for (i = 0; i < N; i++)
         pthread_join(thread_id[i], NULL);
+
+    sem_destroy(&mutex);
+    for (i = 0; i < N; i++)
+        sem_destroy(&S[i]);
+    
+    printf("Philo done\n");
 }
