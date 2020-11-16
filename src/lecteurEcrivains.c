@@ -32,7 +32,7 @@ void writer(void)
         sem_wait(&db);
         //section critique
         write_database(); //TODO
-        ecriturres ++;
+        ecritures ++;
         sem_post(&db);
 
         pthread_mutex_lock(&mw);
@@ -68,7 +68,7 @@ void reader(void)
         read_database(); //TODO
 
         pthread_mutex_lock(&mutex);
-        reaadcount--;
+        readcount--;
         if(readcount == 0){
             //départ du dernier reader
             sem_post(&db);
