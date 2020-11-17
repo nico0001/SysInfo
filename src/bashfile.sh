@@ -5,12 +5,13 @@ for i in {1 2 3 4 5 6 7 8}
 do
 	for j in {1 2 3 4 5}
 	do
-		SECONDS=0
+		TIME1=$(date +%s%3N)
 		{
 			make run PROD=$i CONS=$i PHILO=$i
 		} &> /dev/null
-		DURATION=$SECONDS
-		echo "$i threads : $j try $(($DURATION/60)) minutes and $(($DURATION%60)) seconds"
+		TIME2=$(date +%s%3N)
+		DURATION=$(($TIME2 - $TIME1))
+		echo "$i threads : $j try $(($DURATION/1000)) seconds and $(($DURATION%1000)) milliseconds"
 	done
 done
 make clean
