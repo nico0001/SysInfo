@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main(int argc, char *argv[])
+int main(int argc, char const *argv[])
 {
 	prodCons_problem(atoi(argv[1]),atoi(argv[2]));
 	

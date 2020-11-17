@@ -24,13 +24,15 @@ int consumedItems = 0;
 void producer(void)
 {
     int item;
-    while(producedItems < MAX_PROD)
+    while(TRUE)
     {
         item = gen_random_int();
         sem_wait(&empty);
         pthread_mutex_lock(&mutex);
 
         //début: section critique
+        if (producedItems >= MAX_PROD)
+            break;
         buffer[in] = item;
         //printf("Produced item %d\n", item);
         in = (in +1)%BUFSIZE;
@@ -43,6 +45,8 @@ void producer(void)
         //wait between two productions
         while(rand() > RAND_MAX/10000);
     }
+    pthread_mutex_unlock(&mutex);
+    sem_post(&full);
     //printf("Production finished\n");
     return;
 }
@@ -61,12 +65,15 @@ int gen_random_int() {
 void consumer(void)
 {
     int item;
-    while(consumedItems<MAX_PROD-1)
+    while(TRUE)
     {
         sem_wait(&full);
         pthread_mutex_lock(&mutex);
 
         //début: section critique
+        //printf("Consumed item %d\n", consumedItems);
+        if (consumedItems>=MAX_PROD-1)
+            break;
         item = buffer[out];
         buffer[out] = 0;
         //printf("Consumed item %d\n", item);
@@ -80,6 +87,8 @@ void consumer(void)
         //wait between 2 consumptions
         while(rand() > RAND_MAX/10000);
     }
+    pthread_mutex_unlock(&mutex);
+    sem_post(&empty);
     //printf("Consumption finished\n");
     return;
 }
@@ -87,6 +96,9 @@ void consumer(void)
 
 extern void prodCons_problem(int nProds, int nCons) 
 {
+    /*int nProds = atoi(argv[1]);
+    int nCons = atoi(argv[2]);*/
+
     pthread_t prod[nProds],  cons[nCons];
     pthread_mutex_init(&mutex, NULL);
     sem_init(&empty, 0, BUFSIZE);

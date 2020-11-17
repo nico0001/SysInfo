@@ -6,7 +6,7 @@
 #define THINKING 0
 #define HUNGRY 1
 #define EATING 2
-#define LEFT (phnum + 4) % N
+#define LEFT (phnum + N - 1) % N
 #define RIGHT (phnum + 1) % N
 
 int state[8];
