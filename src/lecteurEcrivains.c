@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 pthread_mutex_t mutex;
-sem_t db //acces a la db
+sem_t db; //acces a la db
 int readcount = 0; //nobre de readerss
 
 sem_t rsem;
@@ -48,7 +48,7 @@ void writer(void)
 
 void reader(void)
 {
-    while (lecutres < 2560)
+    while (lectures < 2560)
     {
         pthread_mutex_lock(&z);
         sem_wait(&rsem);

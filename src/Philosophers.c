@@ -11,10 +11,9 @@
 
 int state[8];
 int phil[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-
+int N;
 
 sem_t S[8];
-int N;
 sem_t mutex;
 
 void test(int phnum) {
