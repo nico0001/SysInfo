@@ -7,12 +7,12 @@
 CC = gcc
 
 # define any compile-time flags
-CFLAGS	:= -Wall -Wextra -g -pthread 
+CFLAGS	:= -Wall -Wextra -g
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LFLAGS =
+LFLAGS = -lpthread
 
 # define output directory
 OUTPUT	:= output
@@ -87,5 +87,5 @@ clean:
 	@echo Cleanup complete!
 
 run: all
-	./$(OUTPUTMAIN) $(PROD) $(CONS)
+	./$(OUTPUTMAIN) $(PROD) $(CONS) $(PHILO)
 	@echo Executing 'run: all' complete!
