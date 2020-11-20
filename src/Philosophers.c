@@ -62,6 +62,33 @@ void* philosopher(void* num) {
     return num;
 }
   
+int main(int argc, char const *argv[])
+{
+    N = atoi(argv[1]);
+    int i;
+    pthread_t thread_id[N];
+    // initialize the semaphores
+    sem_init(&mutex, 0, 1);
+    for (i = 0; i < N; i++){
+        sem_init(&S[i], 0, 0);
+    }
+    for (i = 0; i < N; i++) {
+        phil[i]=i;
+        // create philosopher processes
+        pthread_create(&thread_id[i], NULL, philosopher, &phil[i]);
+        //printf("Philosopher %d is thinking\n", i);
+    }
+    for (i = 0; i < N; i++)
+        pthread_join(thread_id[i], NULL);
+
+    sem_destroy(&mutex);
+    for (i = 0; i < 8; i++)
+        sem_destroy(&S[i]);
+    
+    printf("Philo done\n");
+    return 0;
+}
+/*
 extern void philosopher_problem(int n_philo) {
     N = n_philo;
     int i;
@@ -85,4 +112,4 @@ extern void philosopher_problem(int n_philo) {
         sem_destroy(&S[i]);
     
     printf("Philo done\n");
-}
+}*/
