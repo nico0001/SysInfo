@@ -45,7 +45,7 @@ do
 	do
 		TIME1=$(date +%s%3N)
 		{
-			./Lect ./$i
+			./Lect $i $i
 		} &> /dev/null
 		TIME2=$(date +%s%3N)
 		DURATION=$(($TIME2 - $TIME1))
