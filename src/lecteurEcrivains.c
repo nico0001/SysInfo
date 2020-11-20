@@ -2,91 +2,176 @@
 #include <semaphore.h> 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <math.h>
 
-pthread_mutex_t mutex;
-sem_t db; //acces a la db
-int readcount = 0; //nobre de readerss
+#define TRUE 1
+#define N_WRITTEN_ITEMS 640
+#define N_READ_ITEMS 2560
 
+pthread_mutex_t write;
+pthread_mutex_t read;
+pthread_mutex_t z;
+pthread_mutex_t readcount;
+pthread_mutex_t writecount;
+
+sem_t wsem; //acces a la db
 sem_t rsem;
 
-pthread_mutex_t z;
-pthread_mutex_t mw;
-int w = 0;
+int wc = 0; //nbr des writers
+int rc = 0; //nbr des readers
 
-int ecritures = 0;
-int lectures = 0;
+int ecritures = 0;//nombre des écritures
+int lectures = 0; //nombre de lectures
+
 
 void writer(void)
 {
-    while (ecritures < 640)
+    while (TRUE)
     {
-        prepare_data(); //TODO
+        //prepare_data();
 
-        pthread_mutex_lock(&mw);
-        w++;
-        if (w==1){
+        //Condition pour arrêter les écritures
+        pthread_mutex_lock(&write);
+        if (ecritures == N_WRITTEN_ITEMS){
+            pthread_mutex_unlock(&write);
+            //printf("fin write\n");
+            pthread_exit(NULL);
+        }
+        ecritures ++;
+        pthread_mutex_unlock(&write);
+
+        //augmenter le writecount
+        pthread_mutex_lock(&writecount);
+        wc++;
+        //si c'est le premier writer
+        if (wc == 1){
             sem_wait(&rsem);
         }
-        pthread_mutex_unlock(&mw);
+        pthread_mutex_unlock(&writecount);
 
-        sem_wait(&db);
-        //section critique
-        write_database(); //TODO
-        ecritures ++;
-        sem_post(&db);
+        //section critique: seulement un writer en meme temps
+        sem_wait(&wsem);
+        //printf("Writing\n");
+        //write_database(); 
+        while(rand() > RAND_MAX/10000);
+        sem_post(&wsem);
 
-        pthread_mutex_lock(&mw);
-        w--;
-        if (w==0){
+        //diminuer le writecount
+        pthread_mutex_lock(&writecount);
+        wc--;
+        if (wc == 0){
             sem_post(&rsem);
         }
-        pthread_mutex_unlock(&mw);
-
+        pthread_mutex_unlock(&writecount);
     }
-    return;
+}
+
+//produces random int between INT_MIN et INT_MAX
+int gen_random_int() {
+    const int BITS_PER_RAND = (int)(log2(RAND_MAX/2 + 1) + 1.0); /* Or log(RAND_MAX + 1) / log(2) with older language standards */
+    int ret = 0;
+    for (int i = 0; i < sizeof(int) * CHAR_BIT; i += BITS_PER_RAND) {
+        ret <<= BITS_PER_RAND;
+        ret |= rand();
+    }
+    return ret;
 }
 
 void reader(void)
 {
-    while (lectures < 2560)
+    while (TRUE)
     {
-        pthread_mutex_lock(&z);
-        sem_wait(&rsem);
-        ptrhead_mutex_lock(&mutex);
-
-        //section crtique
-        readcount++;
-        if (readcount == 1){
-             //premier reader
-             sem_wait(&db);
-        }
-
-        pthread_mutex_unlock(&mutex);
-        sem_post(&rsem);
-        ptrhead_mutex_unlock(&z);
-
-        read_database(); //TODO
-
-        pthread_mutex_lock(&mutex);
-        readcount--;
-        if(readcount == 0){
-            //départ du dernier reader
-            sem_post(&db);
+        //condition pour arrêter les lectures
+        pthread_mutex_lock(&read);
+        if (lectures == N_WRITTEN_ITEMS){
+            pthread_mutex_unlock(&read);
+            //printf("fin read\n");
+            pthread_exit(NULL);
         }
         lectures++;
-        pthread_mutex_unlock(&mutex);
-        process_data(); //TODO        
+        pthread_mutex_unlock(&read);
+
+        pthread_mutex_lock(&z);
+        sem_wait(&rsem);
+
+        pthread_mutex_lock(&readcount);
+        //section crtique
+        rc++;
+        //c'est le premier reader
+        if (rc == 1){
+             sem_wait(&wsem);
+        }
+        pthread_mutex_unlock(&readcount);
+        sem_post(&rsem);
+        pthread_mutex_unlock(&z);
+
+        //Lecture
+        //read_database();
+        //printf("Reading\n");
+        while(rand() > RAND_MAX/10000);
+
+        pthread_mutex_lock(&readcount);
+        rc--;
+        //départ du dernier reader
+        if(rc == 0){
+            sem_post(&wsem);
+        }
+        pthread_mutex_unlock(&readcount);
+        //process_data();        
     }
-    return;
 }
 
 
 
-extern void lectEcr_problem(int nProds, int nCons) 
+int main(int argc, char const *argv[])
 {
-    sem_init(&rsem, NULL, 1);
-    sem_init(&db, NULL, 1);
+    int nWriters = atoi(argv[1]);
+    int nReaders = atoi(argv[2]);
+   
+    pthread_mutex_init(&readcount, NULL);
+    pthread_mutex_init(&writecount, NULL);
+    pthread_mutex_init(&z, NULL);
+    pthread_mutex_init(&write, NULL);
+    pthread_mutex_init(&read, NULL);
+    sem_init(&rsem, 0, 1);
+    sem_init(&wsem, 0, 1);
 
-    //TODO
+    pthread_t writers[nWriters];
+    pthread_t readers[nReaders];
 
+    //Creation writers et readers
+    for (int i = 0; i<nWriters; i++){
+        pthread_create(&writers[i], NULL, (void*)writer, NULL);
+    }
+    printf("writer created\n");
+
+    for (int i = 0; i<nReaders; i++){
+        pthread_create(&readers[i], NULL, (void*)reader, NULL);
+    }
+    printf("reader created\n");
+
+
+    //Finalisation des writers et readers 
+    for (int i = 0; i< nWriters; i++){
+        pthread_join(writers[i], NULL);
+    }
+    printf("writers done\n");
+
+    for (int i = 0; i<nReaders; i++){
+        pthread_join(readers[i],NULL);
+    }
+    printf("readers done\n");
+
+
+    //Destruction mutex et sémaphores
+    pthread_mutex_destroy(&readcount);
+    pthread_mutex_destroy(&writecount);
+    pthread_mutex_destroy(&z);
+    pthread_mutex_destroy(&write);
+    pthread_mutex_destroy(&read);
+    sem_destroy(&rsem);
+    sem_destroy(&wsem);
+
+    return 0;
 }
