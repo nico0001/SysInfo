@@ -2,12 +2,13 @@
 {
 	gcc src/Philosophers.c -o Philo -lpthread
 } &> /dev/null
-for i in {1 2 3 4 5 6 7 8}
+for i in {2..8}
 do
 	for j in {1 2 3 4 5}
 	do
 		TIME1=$(date +%s%3N)
 		{
+			#/usr/bin/time -ao DURATION -f %e
 			./Philo $i
 		} &> /dev/null
 		TIME2=$(date +%s%3N)
@@ -20,14 +21,13 @@ rm -f Philo
 {
 	gcc src/prodCons.c -o Prod -lpthread
 } &> /dev/null
-for i in {1 2 3 4 5 6 7 8}
+for i in {2..8}
 do
-	for j in {1 2 3 4 5}
+	for j in {1..5}
 	do
 		TIME1=$(date +%s%3N)
 		{
-			
-			./Prod $i $i
+			./Prod $(($i/2)) $((($i +1)/2))
 		} &> /dev/null
 		TIME2=$(date +%s%3N)
 		DURATION=$(($TIME2 - $TIME1))
@@ -39,13 +39,13 @@ rm -f Prod
 {
 	gcc src/lecteurEcrivains.c -o Lect -lpthread
 } &> /dev/null
-for i in {1 2 3 4 5 6 7 8}
+for i in {2..8}
 do
 	for j in {1 2 3 4 5}
 	do
 		TIME1=$(date +%s%3N)
 		{
-			./Lect $i $i
+			./Lect $((($i +1)/2)) $(($i/2))
 		} &> /dev/null
 		TIME2=$(date +%s%3N)
 		DURATION=$(($TIME2 - $TIME1))

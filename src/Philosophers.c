@@ -54,9 +54,9 @@ void put_fork(int phnum) {
   
 void* philosopher(void* num) {
     int n = 10000;
+    int* i = num;
     // loop +1 000 000 times for each philosopher if he is eating
     while (n!=0) {
-        int* i = num;
         take_fork(*i);
         /*if (state[*i]!=EATING)
             printf("ERROR PAS POSSIBLE !!");*/
@@ -77,7 +77,6 @@ int main(int argc, char const *argv[])
         sem_init(&S[i], 0, 0);
     }
     for (i = 0; i < N; i++) {
-        phil[i]=i;
         // create philosopher processes
         pthread_create(&thread_id[i], NULL, philosopher, &phil[i]);
         //printf("Philosopher %d is thinking\n", i);
