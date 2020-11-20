@@ -12,7 +12,7 @@
 
 int state[MAX_THREAD];
 int N;
-int phil[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+int phil[MAX_THREAD];
 
 sem_t S[MAX_THREAD];
 sem_t mutex;
@@ -71,7 +71,6 @@ void* philosopher(void* num) {
 int main(int argc, char const *argv[])
 {
     N = atoi(argv[1]);
-    
     int i;
     pthread_t thread_id[N];
     // initialize the semaphores
@@ -81,6 +80,7 @@ int main(int argc, char const *argv[])
     }
     for (i = 0; i < N; i++) {
         // create philosopher processes
+        phil[i] = i;
         pthread_create(&thread_id[i], NULL, philosopher, &phil[i]);
         //printf("Philosopher %d is thinking\n", i);
     }
