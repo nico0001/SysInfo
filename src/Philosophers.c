@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <pthread.h> 
 #include <semaphore.h> 
 #include <stdio.h>
@@ -9,15 +8,16 @@
 #define EATING 2
 #define LEFT (phnum + N - 1) % N
 #define RIGHT (phnum + 1) % N
+#define MAX_THREAD 8
 
-int state[8];
-int phil[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+int state[MAX_THREAD];
 int N;
+int phil[8] = {0, 1, 2, 3, 4, 5, 6, 7};
 
-sem_t S[8];
+sem_t S[MAX_THREAD];
 sem_t mutex;
 
-void test(int phnum) {
+void test_eat(int phnum) {
     if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING) {
         state[phnum] = EATING;
         //printf("Philosopher %d takes fork %d and %d\n", phnum, LEFT, phnum);
@@ -34,7 +34,7 @@ void take_fork(int phnum){
     state[phnum] = HUNGRY;
     //printf("Philosopher %d is Hungry\n", phnum);
     // eat if neighbours are not eating
-    test(phnum);
+    test_eat(phnum);
     sem_post(&mutex);
     // if unable to eat wait to be signalled 
     sem_wait(&S[phnum]);
@@ -47,28 +47,31 @@ void put_fork(int phnum) {
     state[phnum] = THINKING;
     //printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
     //printf("Philosopher %d is thinking\n", phnum);
-    test(LEFT);
-    test(RIGHT);
+    test_eat(LEFT);
+    test_eat(RIGHT);
     sem_post(&mutex);
 } 
   
 void* philosopher(void* num) {
-    int n = 10000;
-    int* i = num;
+    int* i = (int*) num;
+    //printf("%d\n", *i);
     // loop +1 000 000 times for each philosopher if he is eating
-    while (n!=0) {
+    for (int n = 10000; n!=0; n--) {
+        //printf("A %d %d\n", *i, n);
         take_fork(*i);
+        //printf("B %d %d\n", *i, n);
         /*if (state[*i]!=EATING)
             printf("ERROR PAS POSSIBLE !!");*/
         put_fork(*i);
-        n--;
+        //printf("C %d %d\n", *i, n);
     }
     return num;
 }
-  
+
 int main(int argc, char const *argv[])
 {
     N = atoi(argv[1]);
+    
     int i;
     pthread_t thread_id[N];
     // initialize the semaphores
@@ -81,11 +84,12 @@ int main(int argc, char const *argv[])
         pthread_create(&thread_id[i], NULL, philosopher, &phil[i]);
         //printf("Philosopher %d is thinking\n", i);
     }
+    printf("création\n");
     for (i = 0; i < N; i++)
         pthread_join(thread_id[i], NULL);
-
+    printf("Join\n");
     sem_destroy(&mutex);
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < MAX_THREAD; i++)
         sem_destroy(&S[i]);
     
     printf("Philo done\n");
