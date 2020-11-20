@@ -2,6 +2,7 @@
 #include <pthread.h> 
 #include <semaphore.h> 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define THINKING 0
 #define HUNGRY 1
@@ -21,7 +22,6 @@ void test(int phnum) {
         state[phnum] = EATING;
         //printf("Philosopher %d takes fork %d and %d\n", phnum, LEFT, phnum);
         //printf("Philosopher %d is Eating\n", phnum);
-
         // wake up hungry philosophers during putfork
         sem_post(&S[phnum]);
     }
@@ -29,6 +29,7 @@ void test(int phnum) {
   
 // take up chopsticks
 void take_fork(int phnum){ 
+    //section critique
     sem_wait(&mutex);
     state[phnum] = HUNGRY;
     //printf("Philosopher %d is Hungry\n", phnum);
@@ -41,6 +42,7 @@ void take_fork(int phnum){
   
 // put down chopsticks 
 void put_fork(int phnum) {
+    //section critique
     sem_wait(&mutex);
     state[phnum] = THINKING;
     //printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
@@ -52,10 +54,12 @@ void put_fork(int phnum) {
   
 void* philosopher(void* num) {
     int n = 10000;
-    // loop 10 000 times for each philosopher
+    // loop +1 000 000 times for each philosopher if he is eating
     while (n!=0) {
         int* i = num;
         take_fork(*i);
+        /*if (state[*i]!=EATING)
+            printf("ERROR PAS POSSIBLE !!");*/
         put_fork(*i);
         n--;
     }
