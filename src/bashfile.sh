@@ -35,9 +35,9 @@ do
 	done
 done
 rm -f Prod
-'''
+
 {
-	gcc src/lecteurEcrivain.c -o Lect -lpthread
+	gcc src/lecteurEcrivains.c -o Lect -lpthread
 } &> /dev/null
 for i in {1 2 3 4 5 6 7 8}
 do
@@ -53,5 +53,5 @@ do
 	done
 done
 rm -f Lect
-'''
+
 echo "finiiiiii"
