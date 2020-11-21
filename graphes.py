@@ -7,11 +7,20 @@ prodConsData = pandas.read_csv('prodCons.csv')["time"]
 lectEcrvData = pandas.read_csv('lectEcr.csv')["time"]
 
 philoAverages = []
+stdPhilo = []
 for i in range(0,len(philoData),15) :
 	n = philoData[i: i+15]
 	philoAverages.append(np.mean(n))
+stdPhilo = np.std(n)
+print(philoAverages)
+print(stdPhilo)
 plt.subplot(311)
-plt.plot(range(2,len(philoData)//15+2),philoAverages)
+plt.xlabel('Nombre des coeurs')
+plt.ylabel("Temps moyenne d'execution")
+plt.title('Temps avec différentes coeurs')
+#plt.plot(range(2,len(philoData)//15+2),philoAverages)
+plt.errorbar(range(2,len(philoData)//15+2),philoAverages, yerr='stdPhilo')
+
 
 prodAverages = []
 for i in range(0,len(prodConsData),5) :
@@ -28,6 +37,8 @@ plt.subplot(313)
 plt.plot(range(2,len(lectEcrvData)//5+2),lectAverages)
 
 plt.show()
+
+
 '''i=0
 averages = []
 
@@ -39,12 +50,7 @@ while i < 35:
 print(averages)
 figure = plt.figure()
  
-M = [1,2,3,4,5,6,7,8]
- 
-plt.plot(M, averages, color="blue", linewidth=1.0)
-plt.xlabel('Nombre des coeurs')
-plt.ylabel("Temps moyenne d'execution")
-plt.title('Temps avec différentes coeurs')
+
 
 plt.savefig("exo.png")
 plt.show()
