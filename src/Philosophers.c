@@ -3,22 +3,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define THINKING 0
-#define HUNGRY 1
-#define EATING 2
+#define FALSE 0
+#define TRUE 1
+#define THINKING 2
+#define HUNGRY 3
+#define EATING 4
 #define LEFT (phnum + N - 1) % N
 #define RIGHT (phnum + 1) % N
 #define MAX_THREAD 8
 
+
 int state[MAX_THREAD];
+int left_hungry[MAX_THREAD];
+int right_hungry[MAX_THREAD];
 int N;
 int phil[MAX_THREAD];
+
 
 sem_t S[MAX_THREAD];
 sem_t mutex;
 
 void test_eat(int phnum) {
-    if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING) {
+    if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING &&
+    !left_hungry[phnum] && !right_hungry[phnum]) {
         state[phnum] = EATING;
         //printf("Philosopher %d takes fork %d and %d\n", phnum, LEFT, phnum);
         //printf("Philosopher %d is Eating\n", phnum);
@@ -38,6 +45,8 @@ void take_fork(int phnum){
     sem_post(&mutex);
     // if unable to eat wait to be signalled 
     sem_wait(&S[phnum]);
+    right_hungry[LEFT]=FALSE;
+    left_hungry[RIGHT]=FALSE;
 }
   
 // put down chopsticks 
@@ -54,14 +63,16 @@ void put_fork(int phnum) {
   
 void* philosopher(void* num) {
     int* i = (int*) num;
+    left_hungry[*i]=FALSE;
+    right_hungry[*i]=FALSE;
     //printf("%d\n", *i);
     // loop +1 000 000 times for each philosopher if he is eating
-    for (int n = 10000; n!=0; n--) {
+    for (int n = 100000; n!=0; n--) {
         //printf("A %d %d\n", *i, n);
         take_fork(*i);
         //printf("B %d %d\n", *i, n);
-        /*if (state[*i]!=EATING)
-            printf("ERROR PAS POSSIBLE !!");*/
+        /*if (n<=200)
+            printf("%d\n", *i);*/
         put_fork(*i);
         //printf("C %d %d\n", *i, n);
     }

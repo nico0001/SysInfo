@@ -18,6 +18,7 @@ do
 	done
 done
 rm -f Philo
+
 echo "n_threads,time" > prodCons.csv
 {
 	gcc src/prodCons.c -o Prod -lpthread
@@ -49,5 +50,5 @@ do
 	done
 done
 rm -f Lect
-'''
+
 echo "finiiiiii"
