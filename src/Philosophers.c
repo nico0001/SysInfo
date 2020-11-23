@@ -71,7 +71,7 @@ void* philosopher(void* num) {
     right_hungry[*i]=FALSE;
     //printf("%d\n", *i);
     // loop +1 000 000 times for each philosopher if he is eating
-    for (int n = 100000; n!=0; n--) {
+    for (int n = 10000; n!=0; n--) {
         //printf("A %d %d\n", *i, n);
         take_fork(*i);
         //printf("B %d %d\n", *i, n);
