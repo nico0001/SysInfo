@@ -57,7 +57,11 @@ void put_fork(int phnum) {
     //printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
     //printf("Philosopher %d is thinking\n", phnum);
     test_eat(LEFT);
+    if(state[LEFT]==HUNGRY)
+        left_hungry[phnum]=TRUE;
     test_eat(RIGHT);
+    if(state[RIGHT]==HUNGRY)
+        right_hungry[phnum]=TRUE;
     sem_post(&mutex);
 } 
   
