@@ -23,6 +23,7 @@ int phil[MAX_THREAD];
 sem_t S[MAX_THREAD];
 sem_t mutex;
 
+
 void test_eat(int phnum) {
     if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING &&
     !left_hungry[phnum] && !right_hungry[phnum]) {

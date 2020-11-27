@@ -1,4 +1,5 @@
 #! /bin/bash
+'''
 echo "n_threads,time" > philo.csv
 {
 	gcc src/Philosophers.c -o Philo -lpthread
@@ -50,5 +51,21 @@ do
 	done
 done
 rm -f Lect
+'''
+echo "n_threads,time" > testAndSet.csv
+{
+	gcc src/test_and_set.c src/TestASM.c -o TaS -lpthread
+} &> /dev/null
+for i in {1..8}
+do
+	for j in {1..5}
+	do
+		{
+			echo -n "$i," >>testAndSet.csv
+			/usr/bin/time -ao testAndSet.csv -f %e ./TaS $((($i +1)/2)) $(($i/2))
+		} &> /dev/null
+	done
+done
+rm -f TaS
 
 echo "finiiiiii"
