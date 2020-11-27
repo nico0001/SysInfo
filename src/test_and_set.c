@@ -8,7 +8,9 @@ int exist[2048];
 
 extern int mutex_init(void){
     int i = 0;
+    printf("avant init\n");
     while (i<2048){
+        printf("%d\n", i);
         if (exist[i]==0){
             exist[i]=EXIST;
             printf("init : %d\n", i);
@@ -22,6 +24,7 @@ extern int mutex_init(void){
 }
 extern void lock(int indMutex){
     int mumu = mutexList[indMutex];
+    printf("mutex avant lock %d\n", indMutex);
     __asm__ (   
             "enter: movl $1, %%eax\n"
             "xchgl %%eax, %0\n"
@@ -31,6 +34,7 @@ extern void lock(int indMutex){
             :"m" (mumu)
             :"eax"
         );
+    mutexList[indMutex] = mumu;
         /*: "=r" (lock)   // output operand
         : "r"(1)        //do we need input operand?
         : "%eax")*/       // clobbered register %eax
@@ -38,6 +42,7 @@ extern void lock(int indMutex){
 
 extern void unlock(int indMutex){
     int mumu = mutexList[indMutex];
+    printf("mutex avant unlock %d\n", indMutex);
     __asm__ (   
             "movl $0, %%eax\n"
             "xchgl %%eax, %0\n"
@@ -45,6 +50,8 @@ extern void unlock(int indMutex){
             :"m" (mumu)
             :"eax"
         );
+    mutexList[indMutex] = mumu;
+    printf("mutex apres unlock %d\n", indMutex);
         /*: "=r" (lock)   // output operand
         : "r"(0)        //do we need input operand?
         : "%eax")*/       // clobbered register %eax
