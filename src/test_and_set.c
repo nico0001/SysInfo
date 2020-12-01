@@ -51,6 +51,6 @@ extern void unlock(int indMutex){
 
 extern void destroy(int indMutex){
     printf("mutex bien destroy\n");
-    mutexList[indMutex]==0;
-    exist[indMutex]==0;
+    mutexList[indMutex]=0;
+    exist[indMutex]=0;
 }
