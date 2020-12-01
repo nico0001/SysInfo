@@ -1,4 +1,6 @@
 #! /bin/bash
+
+#cat /proc/cpuinfo | grep processor | wc -l
 '''
 echo "n_threads,time" > philo.csv
 {
@@ -51,10 +53,10 @@ do
 	done
 done
 rm -f Lect
-'''
+
 echo "n_threads,time" > testAndSet.csv
 {
-	gcc src/test_and_set.c src/TestASM.c -o TaS -lpthread
+	gcc src/test_and_set.c src/PerfTS.c -o TaS -lpthread
 } &> /dev/null
 for i in {1..8}
 do
@@ -67,5 +69,20 @@ do
 	done
 done
 rm -f TaS
-
+'''
+echo "n_threads,time" > testAndTestAndSet.csv
+{
+	gcc src/tts.c src/PerfTTS.c -o TaTaS -lpthread
+} &> /dev/null
+for i in {1..8}
+do
+	for j in {1..5}
+	do
+		{
+			echo -n "$i," >>testAndTestAndSet.csv
+			/usr/bin/time -ao testAndTestAndSet.csv -f %e ./TaTaS $((($i +1)/2)) $(($i/2))
+		} &> /dev/null
+	done
+done
+rm -f TaTaS
 echo "finiiiiii"

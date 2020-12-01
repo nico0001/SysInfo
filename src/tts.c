@@ -21,22 +21,21 @@ extern int ttsmutex_init(void){
 }
 
 extern void ttsLock(int indMutex){
-    while (mutexList[indMutex] == 1){
+    int flag = 1;
+    while (flag == 1){
+        while (mutexList[indMutex] == 1){}
+        __asm__ (
+            "movl $1, %%eax\n"
+            "xchgl %%eax, %1\n"
+            "movl %%eax, %0\n"
+            :"=m" (flag)
+            :"m" (mutexList[indMutex])
+            :"eax"
+        );
     }
-    __asm__ (   
-        "enter: movl $1, %%eax\n"
-        "xchgl %%eax, %0\n"
-        "testl %%eax, %%eax\n"
-        "jnz enter\n"
-        :
-        :"m" (mutexList[indMutex])
-        :"eax"
-    );
 }
 
 extern void ttsUnlock(int indMutex){
-    while (mutexList[indMutex] == 0){
-    }
     __asm__ (   
             "movl $0, %%eax\n"
             "xchgl %%eax, %0\n"
