@@ -3,8 +3,8 @@ import numpy as np
 import pandas
 
 philoData = pandas.read_csv('philo.csv')["time"]
-#philoTaSData = pandas.read_csv('philoTaS.csv')["time"]
-#philoTaTaSData = pandas.read_csv('philoTaTaS.csv')["time"]
+philoTaSData = pandas.read_csv('philoTaS.csv')["time"]
+philoTaTaSData = pandas.read_csv('philoTaTaS.csv')["time"]
 prodConsData = pandas.read_csv('prodCons.csv')["time"]
 prodConsTaSData = pandas.read_csv('prodConsTaS.csv')["time"]
 prodConsTaTaSData = pandas.read_csv('prodConsTaTaS.csv')["time"]
@@ -19,7 +19,7 @@ for i in range(0,len(philoData),15) :
 	n = philoData[i: i+15]
 	philoAverages.append(np.mean(n))
 	stdPhilo.append(np.std(n))
-'''
+
 philoTaSAverages = []
 stdPhiloTaS = []
 for i in range(0,len(philoTaSData),15) :
@@ -33,14 +33,14 @@ for i in range(0,len(philoTaTaSData),15) :
 	n = philoTaTaSData[i: i+15]
 	philoTaTaSAverages.append(np.mean(n))
 	stdPhiloTaTaS.append(np.std(n))
-'''
+
 plt.xlabel('Nombre des threads')
-plt.ylabel("Temps moyenne d'execution")
+plt.ylabel("Temps moyen d'execution")
 plt.title("Temps d'execution en fonction de nombre des threads")
 plt.errorbar(range(2,len(philoData)//15+2),philoAverages, yerr=stdPhilo)
-#plt.errorbar(range(2,len(philoTaSData)//15+2),philoTaSAverages, yerr=stdPhiloTaS, color = 'r')
-#plt.errorbar(range(2,len(philoTaTaSData)//15+2),philoTaTaSAverages, yerr=stdPhiloTaTaS, color = 'g')
-#plt.legend(["POSIX", "TestAndSet", "TestAndTestAndSet"])
+plt.errorbar(range(2,len(philoTaSData)//15+2),philoTaSAverages, yerr=stdPhiloTaS, color = 'r')
+plt.errorbar(range(2,len(philoTaTaSData)//15+2),philoTaTaSAverages, yerr=stdPhiloTaTaS, color = 'g')
+plt.legend(["POSIX", "TestAndSet", "TestAndTestAndSet"])
 plt.axis(ymin=0)
 plt.savefig("Philo.png")
 plt.show()
@@ -68,7 +68,7 @@ for i in range(0,len(prodConsTaTaSData),5) :
 	stdProdTaTaS.append(np.std(n))
 
 plt.xlabel('Nombre des threads')
-plt.ylabel("Temps moyenne d'execution")
+plt.ylabel("Temps moyen d'execution")
 plt.title("Temps d'execution en fonction de nombre des threads")
 plt.errorbar(range(2,len(prodConsData)//5+2),prodAverages, yerr=stdProd)
 plt.errorbar(range(2,len(prodConsTaSData)//5+2),prodTaSAverages, yerr=stdProdTaS, color = 'r')
@@ -101,7 +101,7 @@ for i in range(0,len(lectEcrvTaTaSData),5) :
 	stdLectTaTaS.append(np.std(n))
 
 plt.xlabel('Nombre des threads')
-plt.ylabel("Temps moyenne d'execution")
+plt.ylabel("Temps moyen d'execution")
 plt.title("Temps d'execution en fonction de nombre des threads")
 plt.errorbar(range(2,len(lectEcrvData)//5+2),lectAverages, yerr = stdLect)
 plt.errorbar(range(2,len(lectEcrvTaSData)//5+2),lectTaSAverages, yerr = stdLectTaS, color = 'r')
