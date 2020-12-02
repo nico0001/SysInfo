@@ -15,8 +15,8 @@ pthread_mutex_t z;
 pthread_mutex_t readcount;
 pthread_mutex_t writecount;
 
-sem_t wsem; //semaphore entre écrivains
-sem_t rsem; //semaphore entre écrivains et lecteurs
+sem_t wsem;
+sem_t rsem; 
 
 int wc = 0; //nbr des écrivains
 int rc = 0; //nbr des lecteurs
