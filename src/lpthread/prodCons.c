@@ -34,7 +34,7 @@ void producer(void)
         if (producedItems >= MAX_PROD)
             break;
         buffer[in] = item;
-        //printf("Produced item %d\n", item);
+
         in = (in +1)%BUFSIZE;
         producedItems++;
         //fin: section critique
@@ -42,13 +42,12 @@ void producer(void)
         pthread_mutex_unlock(&mutex);
         sem_post(&full);
         
-        //wait between two productions
+        //attendre entre deux productions
         while(rand() > RAND_MAX/10000);
     }
     pthread_mutex_unlock(&mutex);
     sem_post(&empty);
     sem_post(&full);
-    //printf("Production finished\n");
     return;
 }
 
@@ -72,12 +71,10 @@ void consumer(void)
         pthread_mutex_lock(&mutex);
 
         //début: section critique
-        //printf("Consumed item %d\n", consumedItems);
         if (consumedItems>=MAX_PROD-1)
             break;
         item = buffer[out];
         buffer[out] = 0;
-        //printf("Consumed item %d\n", item);
         out = (out+1)%BUFSIZE;
         consumedItems++;
         //fin: section critique
@@ -85,13 +82,12 @@ void consumer(void)
         pthread_mutex_unlock(&mutex);
         sem_post(&empty);
 
-        //wait between 2 consumptions
+        //attendre entre deux consommations
         while(rand() > RAND_MAX/10000);
     }
     pthread_mutex_unlock(&mutex);
     sem_post(&full);
     sem_post(&empty);
-    //printf("Consumption finished\n");
     return;
 }
 
@@ -101,6 +97,7 @@ int main(int argc, char const *argv[])
     int nCons = atoi(argv[2]);
 
     pthread_t prod[nProds],  cons[nCons];
+    //init du mutex et des sémaphores
     pthread_mutex_init(&mutex, NULL);
     sem_init(&empty, 0, BUFSIZE);
     sem_init(&full, 0, 0);
@@ -108,30 +105,30 @@ int main(int argc, char const *argv[])
     int a[nProds];
     int b[nCons];
 
+    //creation des threads: producteurs
     for (int i = 0; i<nProds; i++)
     {
         pthread_create(&prod[i], NULL, (void *)producer, (void *)&a[i]);
     }
-    //printf("prods produced\n");
 
+    //creation des threads: consommateurs
     for (int i = 0; i<nCons; i++)
     {
         pthread_create(&cons[i], NULL, (void *)consumer, (void *)&b[i]);
     }
-    //printf("cons produced\n");
 
+    //attendre jusque toutes les threads ont fini
     for(int i = 0; i <nProds; i++)
     {
         pthread_join(prod[i], NULL);
     }
-    //printf("prods joined\n");
 
     for(int i = 0; i<nCons; i++)
     {
         pthread_join(cons[i], NULL);
     }
-    //printf("cons joined\n");
 
+    //destruction du mutex et des sémaphores
     pthread_mutex_destroy(&mutex);
     sem_destroy(&empty);
     sem_destroy(&full);
