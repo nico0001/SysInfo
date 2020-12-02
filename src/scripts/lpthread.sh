@@ -1,4 +1,5 @@
 #! /bin/bash
+
 echo "n_threads,time" > philo.csv
 {
 	gcc src/lpthread/Philosophers.c -o Philo -lpthread

@@ -47,6 +47,7 @@ void producer(void)
         while(rand() > RAND_MAX/10000);
     }
     unlock(mutex);
+    sem_post(empty);
     sem_post(full);
     //printf("Production finished\n");
     return;
@@ -89,6 +90,7 @@ void consumer(void)
         while(rand() > RAND_MAX/10000);
     }
     unlock(mutex);
+    sem_post(full);
     sem_post(empty);
     //printf("Consumption finished\n");
     return;
@@ -131,56 +133,10 @@ int main(int argc, char const *argv[])
     }
     //printf("cons joined\n");
 
-    destroy(&mutex);
+    destroy(mutex);
     sem_destroy(empty);
     sem_destroy(full);
 
     printf("prodCons done\n");
     return 0;
 }
-
-/*
-extern void prodCons_problem(int nProds, int nCons) 
-{
-    //int nProds = atoi(argv[1]);
-    //int nCons = atoi(argv[2]);
-
-    pthread_t prod[nProds],  cons[nCons];
-    pthread_mutex_init(&mutex, NULL);
-    sem_init(&empty, 0, BUFSIZE);
-    sem_init(&full, 0, 0);
-
-    int a[nProds];
-    int b[nCons];
-
-    for (int i = 0; i<nProds; i++)
-    {
-        pthread_create(&prod[i], NULL, (void *)producer, (void *)&a[i]);
-    }
-    //printf("prods produced\n");
-
-    for (int i = 0; i<nCons; i++)
-    {
-        pthread_create(&cons[i], NULL, (void *)consumer, (void *)&b[i]);
-    }
-    //printf("cons produced\n");
-
-    for(int i = 0; i <nProds; i++)
-    {
-        pthread_join(prod[i], NULL);
-    }
-    //printf("prods joined\n");
-
-    for(int i = 0; i<nCons; i++)
-    {
-        pthread_join(cons[i], NULL);
-    }
-    //printf("cons joined\n");
-
-    pthread_mutex_destroy(&mutex);
-    sem_destroy(&empty);
-    sem_destroy(&full);
-
-    printf("prodCons done\n");
-    return;
-} */

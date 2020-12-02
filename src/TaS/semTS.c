@@ -15,6 +15,7 @@ int sem_init(int n){
             semList[i] = n;
             semMutexQueue[i] = mutex_init();
             semMutexCount[i] = mutex_init();
+            lock(semMutexQueue[i]);
             return i;
         }
         i++;
@@ -22,31 +23,33 @@ int sem_init(int n){
     return -1;
 }
 
-void sem_wait(int indMutex){
-    lock(semMutexCount[indMutex]);
-    semList[indMutex]--;
-    if(semList[indMutex]<0){
-        unlock(semMutexCount[indMutex]);
-        lock(semMutexQueue[indMutex]);
+void sem_wait(int id){
+    
+    lock(semMutexCount[id]);
+    semList[id]--;
+    if(semList[id]<0){
+        unlock(semMutexCount[id]);
+        lock(semMutexQueue[id]);
     }
-    unlock(semMutexCount[indMutex]);
+    unlock(semMutexCount[id]);
 }
 
-void sem_post(int indMutex){
-    lock(semMutexCount[indMutex]);
-    semList[indMutex]++;
-    if(semList[indMutex]<=0){
-        
-        unlock(semMutexQueue[indMutex]);
+void sem_post(int id){
+    lock(semMutexCount[id]);
+    semList[id]++;
+    if(semList[id]<=0){
+        unlock(semMutexQueue[id]);
     }
-    unlock(semMutexCount[indMutex]);
+    else{
+        unlock(semMutexCount[id]);
+    }
 }
 
-void sem_destroy(int indMutex){
-    semList[indMutex]=0;
-    exist[indMutex]=0;
-    destroy(semMutexQueue[indMutex]);
-    destroy(semMutexCount[indMutex]);
-    semMutexQueue[indMutex]=0;
-    semMutexCount[indMutex]=0;
+void sem_destroy(int id){
+    semList[id]=0;
+    exist[id]=0;
+    destroy(semMutexQueue[id]);
+    destroy(semMutexCount[id]);
+    semMutexQueue[id]=0;
+    semMutexCount[id]=0;
 }

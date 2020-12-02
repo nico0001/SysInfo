@@ -39,12 +39,12 @@ void test_eat(int phnum) {
 // take up chopsticks
 void take_fork(int phnum){ 
     //section critique
-    semtts_wait(mutex);
+    ttsLock(mutex);
     state[phnum] = HUNGRY;
     //printf("Philosopher %d is Hungry\n", phnum);
     // eat if neighbours are not eating
     test_eat(phnum);
-    semtts_post(mutex);
+    ttsUnlock(mutex);
     // if unable to eat wait to be signalled 
     semtts_wait(S[phnum]);
     right_hungry[LEFT]=FALSE;
@@ -54,7 +54,7 @@ void take_fork(int phnum){
 // put down chopsticks 
 void put_fork(int phnum) {
     //section critique
-    semtts_wait(mutex);
+    ttsLock(mutex);
     state[phnum] = THINKING;
     //printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
     //printf("Philosopher %d is thinking\n", phnum);
@@ -64,7 +64,7 @@ void put_fork(int phnum) {
     test_eat(RIGHT);
     if(state[RIGHT]==HUNGRY)
         right_hungry[phnum]=TRUE;
-    semtts_post(mutex);
+    ttsUnlock(mutex);
 } 
   
 void* philosopher(void* num) {
@@ -73,7 +73,7 @@ void* philosopher(void* num) {
     right_hungry[*i]=FALSE;
     //printf("%d\n", *i);
     // loop +1 000 000 times for each philosopher if he is eating
-    for (int n = 10000; n!=0; n--) {
+    for (int n = 100000; n!=0; n--) {
         //printf("A %d %d\n", *i, n);
         take_fork(*i);
         //printf("B %d %d\n", *i, n);
@@ -91,7 +91,7 @@ int main(int argc, char const *argv[])
     int i;
     pthread_t thread_id[N];
     // initialize the semaphores
-    mutex = semtts_init(1);
+    mutex = ttsmutex_init();
     for (i = 0; i < N; i++){
         S[i] = semtts_init(0);
     }
@@ -106,34 +106,9 @@ int main(int argc, char const *argv[])
         pthread_join(thread_id[i], NULL);
     printf("Join\n");
     semtts_destroy(mutex);
-    for (i = 0; i < MAX_THREAD; i++)
+    for (i = 0; i < N; i++)
         semtts_destroy(S[i]);
     
     printf("Philo done\n");
     return 0;
 }
-/*
-extern void philosopher_problem(int n_philo) {
-    N = n_philo;
-    int i;
-    pthread_t thread_id[N];
-    // initialize the semaphores
-    sem_init(&mutex, 0, 1);
-    for (i = 0; i < N; i++){
-        sem_init(&S[i], 0, 0);
-    }
-    for (i = 0; i < N; i++) {
-        phil[i]=i;
-        // create philosopher processes
-        pthread_create(&thread_id[i], NULL, philosopher, &phil[i]);
-        //printf("Philosopher %d is thinking\n", i);
-    }
-    for (i = 0; i < N; i++)
-        pthread_join(thread_id[i], NULL);
-
-    sem_destroy(&mutex);
-    for (i = 0; i < 8; i++)
-        sem_destroy(&S[i]);
-    
-    printf("Philo done\n");
-}*/

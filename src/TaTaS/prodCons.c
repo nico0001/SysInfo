@@ -30,7 +30,7 @@ void producer(void)
         item = gen_random_int();
         semtts_wait(empty);
         ttsLock(mutex);
-
+        //printf("Produced item %d\n", producedItems);
         //début: section critique
         if (producedItems >= MAX_PROD)
             break;
@@ -40,15 +40,16 @@ void producer(void)
         producedItems++;
         //fin: section critique
 
-        ttsLock(mutex);
+        ttsUnlock(mutex);
         semtts_post(full);
         
         //wait between two productions
         while(rand() > RAND_MAX/10000);
     }
     ttsUnlock(mutex);
+    semtts_post(empty);
     semtts_post(full);
-    //printf("Production finished\n");
+    printf("Production finished\n");
     return;
 }
 
@@ -89,8 +90,9 @@ void consumer(void)
         while(rand() > RAND_MAX/10000);
     }
     ttsUnlock(mutex);
+    semtts_post(full);
     semtts_post(empty);
-    //printf("Consumption finished\n");
+    printf("Consumption finished\n");
     return;
 }
 
@@ -111,25 +113,25 @@ int main(int argc, char const *argv[])
     {
         pthread_create(&prod[i], NULL, (void *)producer, (void *)&a[i]);
     }
-    //printf("prods produced\n");
+    printf("prods produced\n");
 
     for (int i = 0; i<nCons; i++)
     {
         pthread_create(&cons[i], NULL, (void *)consumer, (void *)&b[i]);
     }
-    //printf("cons produced\n");
+    printf("cons produced\n");
 
     for(int i = 0; i <nProds; i++)
     {
         pthread_join(prod[i], NULL);
     }
-    //printf("prods joined\n");
+    printf("prods joined\n");
 
     for(int i = 0; i<nCons; i++)
     {
         pthread_join(cons[i], NULL);
     }
-    //printf("cons joined\n");
+    printf("cons joined\n");
 
     ttsdestroy(mutex);
     semtts_destroy(empty);
@@ -138,49 +140,3 @@ int main(int argc, char const *argv[])
     printf("prodCons done\n");
     return 0;
 }
-
-/*
-extern void prodCons_problem(int nProds, int nCons) 
-{
-    //int nProds = atoi(argv[1]);
-    //int nCons = atoi(argv[2]);
-
-    pthread_t prod[nProds],  cons[nCons];
-    pthread_mutex_init(&mutex, NULL);
-    sem_init(&empty, 0, BUFSIZE);
-    sem_init(&full, 0, 0);
-
-    int a[nProds];
-    int b[nCons];
-
-    for (int i = 0; i<nProds; i++)
-    {
-        pthread_create(&prod[i], NULL, (void *)producer, (void *)&a[i]);
-    }
-    //printf("prods produced\n");
-
-    for (int i = 0; i<nCons; i++)
-    {
-        pthread_create(&cons[i], NULL, (void *)consumer, (void *)&b[i]);
-    }
-    //printf("cons produced\n");
-
-    for(int i = 0; i <nProds; i++)
-    {
-        pthread_join(prod[i], NULL);
-    }
-    //printf("prods joined\n");
-
-    for(int i = 0; i<nCons; i++)
-    {
-        pthread_join(cons[i], NULL);
-    }
-    //printf("cons joined\n");
-
-    pthread_mutex_destroy(&mutex);
-    sem_destroy(&empty);
-    sem_destroy(&full);
-
-    printf("prodCons done\n");
-    return;
-} */

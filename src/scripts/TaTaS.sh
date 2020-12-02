@@ -1,4 +1,5 @@
 #! /bin/bash
+
 echo "n_threads,time" > philoTaTaS.csv
 {
 	gcc src/TaTaS/Philosophers.c -o Philo -lpthread
