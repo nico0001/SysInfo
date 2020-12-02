@@ -1,5 +1,5 @@
 #! /bin/bash
-
+'''
 echo "n_threads,time" > philoTaS.csv
 {
 	gcc src/TaS/Philosophers.c -o Philo -lpthread
@@ -15,7 +15,7 @@ do
 	done
 done
 rm -f Philo
-
+'''
 echo "n_threads,time" > prodConsTaS.csv
 {
 	gcc src/TaS/prodCons.c -o Prod -lpthread

@@ -19,7 +19,7 @@ for i in range(0,len(TaTaSData),5) :
 	TaTaSAverages.append(np.mean(n))
 	stdTaTaS.append(np.std(n))
 
-plt.xlabel('Nombre des coeurs')
+plt.xlabel('Nombre des threads')
 plt.ylabel("Temps moyenne d'execution")
 plt.title("Temps d'execution avec différentes coeurs")
 plt.errorbar(range(1,len(TaSData)//5+1),TaSAverages, yerr=stdTaS, color = 'r', linestyle="--")
