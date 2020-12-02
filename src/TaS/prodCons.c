@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
+#include "test_and_set.c"
+#include "semTS.c"
 
 #define TRUE 1
 #define False 0

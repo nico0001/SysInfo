@@ -1,6 +1,8 @@
 #include <pthread.h> 
 #include <stdio.h>
 #include <stdlib.h>
+#include "test_and_set.c"
+#include "semTS.c"
 
 #define FALSE 0
 #define TRUE 1
@@ -28,7 +30,7 @@ void test_eat(int phnum) {
     !left_hungry[phnum] && !right_hungry[phnum]) {
         state[phnum] = EATING;
         //printf("Philosopher %d takes fork %d and %d\n", phnum, LEFT, phnum);
-        //printf("Philosopher %d is Eating\n", phnum);
+        printf("Philosopher %d is Eating\n", phnum);
         // wake up hungry philosophers during putfork
         sem_post(S[phnum]);
     }
@@ -54,7 +56,7 @@ void put_fork(int phnum) {
     //section critique
     sem_wait(mutex);
     state[phnum] = THINKING;
-    //printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
+    printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
     //printf("Philosopher %d is thinking\n", phnum);
     test_eat(LEFT);
     if(state[LEFT]==HUNGRY)
@@ -71,7 +73,7 @@ void* philosopher(void* num) {
     right_hungry[*i]=FALSE;
     //printf("%d\n", *i);
     // loop +1 000 000 times for each philosopher if he is eating
-    for (int n = 10000; n!=0; n--) {
+    for (int n = 10; n!=0; n--) {
         //printf("A %d %d\n", *i, n);
         take_fork(*i);
         //printf("B %d %d\n", *i, n);

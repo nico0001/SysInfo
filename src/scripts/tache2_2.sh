@@ -4,7 +4,7 @@
 
 echo "n_threads,time" > testAndSet.csv
 {
-	gcc src/TaS/test_and_set.c src/TaS/PerfTS.c -o TaS -lpthread
+	gcc src/TaS/PerfTS.c -o TaS -lpthread
 } &> /dev/null
 for i in {1..8}
 do
@@ -20,7 +20,7 @@ rm -f TaS
 
 echo "n_threads,time" > testAndTestAndSet.csv
 {
-	gcc src/TaTaS/tts.c src/TaTaS/PerfTTS.c -o TaTaS -lpthread
+	gcc src/TaTaS/PerfTTS.c -o TaTaS -lpthread
 } &> /dev/null
 for i in {1..8}
 do

@@ -7,10 +7,9 @@ int semMutexQueue[2048];
 int semMutexCount[2048];
 int exist[2048];
 
-extern int semtts_init(int n){
+int semtts_init(int n){
     int i = 0;
     while (i<2048){
-        printf("%d\n", i);
         if (exist[i]==0){
             exist[i]=EXIST;
             semList[i] = n;
@@ -23,7 +22,7 @@ extern int semtts_init(int n){
     return -1;
 }
 
-extern void semtts_wait(int indMutex){
+void semtts_wait(int indMutex){
     ttsLock(semMutexCount[indMutex]);
     semList[indMutex]--;
     if(semList[indMutex]<0){
@@ -33,19 +32,16 @@ extern void semtts_wait(int indMutex){
     ttsUnlock(semMutexCount[indMutex]);
 }
 
-extern void semtts_post(int indMutex){
+void semtts_post(int indMutex){
     ttsLock(semMutexCount[indMutex]);
     semList[indMutex]++;
     if(semList[indMutex]<=0){
         ttsUnlock(semMutexQueue[indMutex]);
     }
-    else{
-        ttsUnlock(semMutexCount[indMutex]);
-    }
+    ttsUnlock(semMutexCount[indMutex]);
 }
 
-extern void semtts_destroy(int indMutex){
-    printf("mutex bien destroy\n");
+void semtts_destroy(int indMutex){
     semList[indMutex]=0;
     exist[indMutex]=0;
     ttsdestroy(semMutexQueue[indMutex]);

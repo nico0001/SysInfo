@@ -5,13 +5,11 @@
 int mutexList[2048];
 int exist[2048];
 
-extern int ttsmutex_init(void){
+int ttsmutex_init(void){
     int i = 0;
     while (i<2048){
-        printf("%d\n", i);
         if (exist[i]==0){
             exist[i]=EXIST;
-            printf("init : %d\n", i);
             return i;
         }
         i++;
@@ -19,7 +17,7 @@ extern int ttsmutex_init(void){
     return -1;
 }
 
-extern void ttsLock(int indMutex){
+void ttsLock(int indMutex){
     int flag = 1;
     while (flag == 1){
 
@@ -36,7 +34,7 @@ extern void ttsLock(int indMutex){
     }
 }
 
-extern void ttsUnlock(int indMutex){
+void ttsUnlock(int indMutex){
     __asm__ (   
             "movl $0, %%eax\n"
             "xchgl %%eax, %0\n"
@@ -46,7 +44,7 @@ extern void ttsUnlock(int indMutex){
         );
 }
 
-extern void ttsdestroy(int indMutex){
+void ttsdestroy(int indMutex){
     printf("mutex bien destroy\n");
     mutexList[indMutex]=0;
     exist[indMutex]=0;

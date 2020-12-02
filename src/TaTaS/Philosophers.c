@@ -1,6 +1,8 @@
 #include <pthread.h> 
 #include <stdio.h>
 #include <stdlib.h>
+#include "tts.c"
+#include "semTTS.c"
 
 #define FALSE 0
 #define TRUE 1

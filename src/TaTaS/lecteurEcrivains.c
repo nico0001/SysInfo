@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
+#include "tts.c"
+#include "semTTS.c"
 
 #define TRUE 1
 #define N_WRITTEN_ITEMS 640
