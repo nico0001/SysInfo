@@ -21,7 +21,7 @@ for i in range(0,len(TaTaSData),5) :
 
 plt.xlabel('Nombre des threads')
 plt.ylabel("Temps moyenne d'execution")
-plt.title("Temps d'execution avec différentes coeurs")
+plt.title("Temps d'execution en fonction de nombre des threads")
 plt.errorbar(range(1,len(TaSData)//5+1),TaSAverages, yerr=stdTaS, color = 'r', linestyle="--")
 plt.errorbar(range(1,len(TaTaSData)//5+1),TaTaSAverages, yerr=stdTaTaS, color = 'b', linestyle="--")
 plt.axis(ymin=0)
