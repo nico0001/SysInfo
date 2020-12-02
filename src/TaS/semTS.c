@@ -10,11 +10,12 @@ int exist[2048];
 int sem_init(int n){
     int i = 0;
     while (i<2048){
-        if (exist[i]==0){
+        if (exist[i]!=EXIST){
             exist[i]=EXIST;
             semList[i] = n;
             semMutexQueue[i] = mutex_init();
             semMutexCount[i] = mutex_init();
+            // queue initialement bloquée
             lock(semMutexQueue[i]);
             return i;
         }
@@ -24,20 +25,23 @@ int sem_init(int n){
 }
 
 void sem_wait(int id){
-    
+    // section critique
     lock(semMutexCount[id]);
     semList[id]--;
     if(semList[id]<0){
         unlock(semMutexCount[id]);
+        // le thread rentre dans la queue
         lock(semMutexQueue[id]);
     }
     unlock(semMutexCount[id]);
 }
 
 void sem_post(int id){
+    // section critique
     lock(semMutexCount[id]);
     semList[id]++;
     if(semList[id]<=0){
+        // un thread est retiré de la queue
         unlock(semMutexQueue[id]);
     }
     else{

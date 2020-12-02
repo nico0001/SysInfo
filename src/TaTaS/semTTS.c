@@ -10,12 +10,12 @@ int exist[2048];
 int semtts_init(int n){
     int i = 0;
     while (i<2048){
-        if (exist[i]==0){
-            //printf("%d\n", i);
+        if (exist[i]!=EXIST){
             exist[i]=EXIST;
             semList[i] = n;
             semMutexQueue[i] = ttsmutex_init();
             semMutexCount[i] = ttsmutex_init();
+            // queue initialement bloquée
             ttsLock(semMutexQueue[i]);
             return i;
         }
@@ -25,21 +25,23 @@ int semtts_init(int n){
 }
 
 void semtts_wait(int id){
+    // section critique
     ttsLock(semMutexCount[id]);
     semList[id]--;
-    //printf("Waiting %d %d\n", id, semList[id]);
     if(semList[id]<0){
         ttsUnlock(semMutexCount[id]);
+        // le thread rentre dans la queue
         ttsLock(semMutexQueue[id]);
     }
     ttsUnlock(semMutexCount[id]);
 }
 
 void semtts_post(int id){
+    // section critique
     ttsLock(semMutexCount[id]);
     semList[id]++;
-    //printf("Post %d %d\n", id, semList[id]);
     if(semList[id]<=0){
+        // un thread est retiré de la queue
         ttsUnlock(semMutexQueue[id]);
     }
     else

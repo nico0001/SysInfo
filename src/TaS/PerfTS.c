@@ -24,9 +24,7 @@ int main(int argc, char const *argv[])
     N = atoi(argv[1]);
     pthread_t thread_id[N];
     for (int i = 0; i < N; i++) {
-        // create philosopher processes
         pthread_create(&thread_id[i], NULL, testMutex, N);
-        //printf("Philosopher %d is thinking\n", i);
     }
     printf("création\n");
     for (int i = 0; i < N; i++)

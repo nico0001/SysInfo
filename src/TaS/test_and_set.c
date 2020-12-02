@@ -9,7 +9,7 @@ int exist[2048];
 int mutex_init(void){
     int i = 0;
     while (i<2048){
-        if (exist[i]==0){
+        if (exist[i]!=EXIST){
             exist[i]=EXIST;
             return i;
         }
@@ -29,9 +29,6 @@ void lock(int indMutex){
             :"m" (mutexList[indMutex])
             :"eax"
         );
-        /*: "=r" (lock)   // output operand
-        : "r"(1)        //do we need input operand?
-        : "%eax")*/       // clobbered register %eax
 }
 
 void unlock(int indMutex){
@@ -42,9 +39,6 @@ void unlock(int indMutex){
             :"m" (mutexList[indMutex])
             :"eax"
         );
-        /*: "=r" (lock)   // output operand
-        : "r"(0)        //do we need input operand?
-        : "%eax")*/       // clobbered register %eax
 }
 
 void destroy(int indMutex){

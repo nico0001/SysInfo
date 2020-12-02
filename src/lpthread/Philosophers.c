@@ -28,8 +28,6 @@ void test_eat(int phnum) {
     if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING &&
     !left_hungry[phnum] && !right_hungry[phnum]) {
         state[phnum] = EATING;
-        //printf("Philosopher %d takes fork %d and %d\n", phnum, LEFT, phnum);
-        //printf("Philosopher %d is Eating\n", phnum);
         // wake up hungry philosophers during putfork
         sem_post(&S[phnum]);
     }
@@ -37,10 +35,9 @@ void test_eat(int phnum) {
   
 // take up chopsticks
 void take_fork(int phnum){ 
-    //section critique
+    // critical section
     pthread_mutex_lock(&mutex);
     state[phnum] = HUNGRY;
-    //printf("Philosopher %d is Hungry\n", phnum);
     // eat if neighbours are not eating
     test_eat(phnum);
     pthread_mutex_unlock(&mutex);
@@ -52,11 +49,10 @@ void take_fork(int phnum){
   
 // put down chopsticks 
 void put_fork(int phnum) {
-    //section critique
+    // critical section
     pthread_mutex_lock(&mutex);
     state[phnum] = THINKING;
-    //printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
-    //printf("Philosopher %d is thinking\n", phnum);
+    // test neighbours
     test_eat(LEFT);
     if(state[LEFT]==HUNGRY)
         left_hungry[phnum]=TRUE;
@@ -70,16 +66,10 @@ void* philosopher(void* num) {
     int* i = (int*) num;
     left_hungry[*i]=FALSE;
     right_hungry[*i]=FALSE;
-    //printf("%d\n", *i);
-    // loop +1 000 000 times for each philosopher if he is eating
+    // loop 100 000 times for each philosopher
     for (int n = 100000; n!=0; n--) {
-        //printf("A %d %d\n", *i, n);
         take_fork(*i);
-        //printf("B %d %d\n", *i, n);
-        /*if (n<=200)
-            printf("%d\n", *i);*/
         put_fork(*i);
-        //printf("C %d %d\n", *i, n);
     }
     return num;
 }
@@ -98,16 +88,14 @@ int main(int argc, char const *argv[])
         // create philosopher processes
         phil[i] = i;
         pthread_create(&thread_id[i], NULL, philosopher, &phil[i]);
-        //printf("Philosopher %d is thinking\n", i);
     }
-    printf("création\n");
+
     for (i = 0; i < N; i++)
         pthread_join(thread_id[i], NULL);
-    printf("Join\n");
+
     pthread_mutex_destroy(&mutex);
     for (i = 0; i < N; i++)
         sem_destroy(&S[i]);
     
-    printf("Philo done\n");
     return 0;
 }
