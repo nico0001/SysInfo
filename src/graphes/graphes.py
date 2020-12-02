@@ -6,7 +6,7 @@ philoData = pandas.read_csv('philo.csv')["time"]
 prodConsData = pandas.read_csv('prodCons.csv')["time"]
 lectEcrvData = pandas.read_csv('lectEcr.csv')["time"]
 TaSData = pandas.read_csv('testAndSet.csv')["time"]
-TaTaSData = pandas.read_csv('testAndSet.csv')["time"]
+TaTaSData = pandas.read_csv('testAndTestAndSet.csv')["time"]
 
 philoAverages = []
 stdPhilo = []
@@ -71,7 +71,8 @@ plt.xlabel('Nombre des coeurs')
 plt.ylabel("Temps moyenne d'execution")
 plt.title("Temps d'execution avec différentes coeurs")
 plt.errorbar(range(1,len(TaSData)//5+1),TaSAverages, yerr=stdTaS, color = 'r', linestyle="--")
-plt.errorbar(range(1,len(TaTaSData)//5+1),TaTaSAverages, yerr=stdTaTaS, color = 'b', linestyle=":")
+plt.errorbar(range(1,len(TaTaSData)//5+1),TaTaSAverages, yerr=stdTaTaS, color = 'b', linestyle="--")
 plt.axis(ymin=0)
+plt.legend(["TestAndSet","TestAndTestAndSet"])
 plt.savefig("TaS.png")
 plt.show()
