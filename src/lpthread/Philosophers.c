@@ -14,6 +14,8 @@
 
 
 int state[MAX_THREAD];
+int left_hungry[MAX_THREAD];
+int right_hungry[MAX_THREAD];
 int N;
 int phil[MAX_THREAD];
 
@@ -23,7 +25,8 @@ pthread_mutex_t mutex;
 
 
 void test_eat(int phnum) {
-    if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING) {
+    if (state[phnum] == HUNGRY && state[LEFT] != EATING && state[RIGHT] != EATING &&
+    !left_hungry[phnum] && !right_hungry[phnum]) {
         state[phnum] = EATING;
         //printf("Philosopher %d takes fork %d and %d\n", phnum, LEFT, phnum);
         //printf("Philosopher %d is Eating\n", phnum);
@@ -43,6 +46,8 @@ void take_fork(int phnum){
     pthread_mutex_unlock(&mutex);
     // if unable to eat wait to be signalled 
     sem_wait(&S[phnum]);
+    right_hungry[LEFT]=FALSE;
+    left_hungry[RIGHT]=FALSE;
 }
   
 // put down chopsticks 
@@ -53,12 +58,18 @@ void put_fork(int phnum) {
     //printf("Philosopher %d putting fork %d and %d down\n", phnum, LEFT, phnum);
     //printf("Philosopher %d is thinking\n", phnum);
     test_eat(LEFT);
+    if(state[LEFT]==HUNGRY)
+        left_hungry[phnum]=TRUE;
     test_eat(RIGHT);
+    if(state[RIGHT]==HUNGRY)
+        right_hungry[phnum]=TRUE;
     pthread_mutex_unlock(&mutex);
 } 
   
 void* philosopher(void* num) {
     int* i = (int*) num;
+    left_hungry[*i]=FALSE;
+    right_hungry[*i]=FALSE;
     //printf("%d\n", *i);
     // loop +1 000 000 times for each philosopher if he is eating
     for (int n = 100000; n!=0; n--) {
