@@ -10,6 +10,8 @@ clean:
 	rm -f lib_tar.o tests soumission.tar
 
 submit: all
+	ln -s lib_tar.c testlink.c
 	mkdir testdir
 	tar --posix --pax-option delete=".*" --pax-option delete="*time*" --no-xattrs --no-acl --no-selinux -c *.h *.c testdir Makefile > soumission.tar
 	rm -r testdir
+	rm testlink.c
