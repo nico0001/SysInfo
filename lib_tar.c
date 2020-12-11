@@ -87,13 +87,14 @@ int exists(int tar_fd, char *path) {
  */
 int is_dir(int tar_fd, char *path) {
     char buf[512];
-    read(tar_fd, buf, 512);
     int off_set = 0;
+    pread(tar_fd, buf, 512,off_set);
     tar_header_t* header = (tar_header_t*) buf;
     while(strcmp(header->name,path)){
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
+        // Fichier non trouvé
         if(!strcmp(header->name, "")){
             return 0;
         }
@@ -116,12 +117,13 @@ int is_dir(int tar_fd, char *path) {
 int is_file(int tar_fd, char *path) {
     int off_set = 0;
     char buf[512];
-    pread(tar_fd, buf, 512, 0);
+    pread(tar_fd, buf, 512, off_set);
     tar_header_t* header = (tar_header_t*) buf;
     while(strcmp(header->name,path)){
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512 + file_size;
         pread(tar_fd, buf, 512, off_set);
+        // Fichier non trouvé
         if(!strcmp(header->name, "")){
             return 0;
         }
@@ -142,13 +144,14 @@ int is_file(int tar_fd, char *path) {
  */
 int is_symlink(int tar_fd, char *path) {
     char buf[512];
-    read(tar_fd, buf, 512);
     int off_set = 0;
+    pread(tar_fd, buf, 512, off_set);
     tar_header_t* header = (tar_header_t*) buf;
     while(strcmp(header->name,path)){
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
+        // Fichier non trouvé
         if(!strcmp(header->name, "")){
             return 0;
         }
@@ -195,5 +198,34 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
  *
  */
 ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *len) {
-    return 0;
+    char buf[512];
+    ssize_t tar_offset = 0;
+    pread(tar_fd, buf, 512, tar_offset);
+    tar_header_t* header = (tar_header_t*) buf;
+    while(strcmp(header->name,path)){
+        ssize_t file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
+        tar_offset += 512+file_size;
+        pread(tar_fd, buf, 512, tar_offset);
+        // Fichier non trouvé
+        if(!strcmp(header->name, "")){
+            return -1;
+        }
+    }
+    
+    if(is_file(tar_fd, header->name)){
+        ssize_t file_size = TAR_INT(header->size);
+        //printf("size = %ld\n", file_size);
+        if (offset>file_size){
+            return -2;
+        }
+        if (*len>file_size-offset){
+            *len = file_size - offset;
+        }
+        pread(tar_fd, dest, *len, tar_offset + 512 + offset);
+        return file_size-*len - offset;
+    }
+    if(is_symlink(tar_fd, header->name)){
+        return read_file(tar_fd, header->linkname, offset, dest, len);
+    }
+    return -1;
 }

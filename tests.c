@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     printf("exists2 of '%s' returned %d\n", p2, ret2);
 
     //is_file
-    char* file = "lib_tar.c";
+    char* file = "tests.c";
     int ret3 = is_file(fd, file);
     printf("is_file of '%s' returned %d\n", file, ret3);
 
@@ -88,5 +88,23 @@ int main(int argc, char **argv) {
     int ret11 = is_symlink(fd, s2);
     printf("is_symlink of '%s' returned %d\n", s2, ret11);
 
+    // read_file()
+    uint8_t buf[50];
+    size_t* psize, size;
+    size = 50;
+    psize  = &size;
+    ssize_t ret12 = read_file(fd, file, 0, buf, psize);
+    printf("read_file returned %ld\n", ret12);
+    printf("len = %ld\n", *psize);
+    debug_dump(buf, size);
+
+    uint8_t buf1[8191];
+    size_t* psize1, size1;
+    size1 = 8191;
+    psize1  = &size1;
+    ssize_t ret13 = read_file(fd, s, 500, buf1, psize1);
+    printf("read_file returned %ld\n", ret13);
+    printf("len = %ld\n", *psize1);
+    //debug_dump(buf1, size1);
     return 0;
 }
