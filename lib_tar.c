@@ -24,6 +24,7 @@ int check_archive(int tar_fd) {
     pread(tar_fd, buf, 512, 0);
     tar_header_t* header = (tar_header_t*) buf;
     while(strcmp(header->name,"")){
+        printf("name = %s\n", header->name);
         rep++;
         if(strcmp(header->magic, "ustar")){
             return -1;
@@ -33,13 +34,14 @@ int check_archive(int tar_fd) {
         }
         uint sum = 0;
         for (int i = 0; i <512; i++){
-            if(i<=148 || i > 156){
+            if(i<148 || i >= 156){
                 sum += (uint) *(buf+i);
             }
             else{
                 sum += (uint) ' ';
             }
         }
+        
         if(TAR_INT(header->chksum)!=sum){
             return -3;
         }
@@ -61,8 +63,8 @@ int check_archive(int tar_fd) {
  */
 int exists(int tar_fd, char *path) {
     char buf[512];
-    read(tar_fd, buf, 512);
     int off_set = 0;
+    pread(tar_fd, buf, 512, off_set);
     tar_header_t* header = (tar_header_t*) buf;
     while(strcmp(header->name,"")){
         if(!strcmp(header->name, path)){
@@ -93,8 +95,8 @@ int is_dir(int tar_fd, char *path) {
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
-        if(strcmp(header->name, "")){
-            break;
+        if(!strcmp(header->name, "")){
+            return 0;
         }
     }
     if(header->typeflag == DIRTYPE){
@@ -121,8 +123,8 @@ int is_file(int tar_fd, char *path) {
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512 + file_size;
         pread(tar_fd, buf, 512, off_set);
-        if(strcmp(header->name, "")){
-            break;
+        if(!strcmp(header->name, "")){
+            return 0;
         }
     }
     if(header->typeflag == REGTYPE || header->typeflag == AREGTYPE || header->typeflag == LNKTYPE){
@@ -148,8 +150,8 @@ int is_symlink(int tar_fd, char *path) {
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
-        if(strcmp(header->name, "")){
-            break;
+        if(!strcmp(header->name, "")){
+            return 0;
         }
     }
     if(header->typeflag == SYMTYPE){
