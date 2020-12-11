@@ -1,7 +1,8 @@
 #include "lib_tar.h"
-
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 /**
-*hello 
  * Checks whether the archive is valid.
  *
  * Each non-null header of a valid archive has:
@@ -17,7 +18,29 @@
  *         -3 if the archive contains a header with an invalid checksum value
  */
 int check_archive(int tar_fd) {
-    return 0;
+    void* buf[512];
+    read(tar_fd, buf, 512);
+    int off_set = 512;
+    tar_header_t* header = (tar_header_t*) buf;
+    int rep = 0;
+    while(!strcmp(header->name,"")){
+        printf("Je boucle\n");
+        if(!strcmp(header->magic, "ustar")){
+            return -1;
+        }
+        if(!strcmp(header->version, "00")){
+            return -2;
+        }
+        if(!strcmp(header->chksum, "chksum(header)")){
+            return -3;
+        }
+        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
+        off_set += file_size;
+        pread(tar_fd, buf, 512, off_set);
+        rep++;
+    }
+    printf("Fichier non existant\n");
+    return rep;
 }
 
 /**
@@ -30,7 +53,22 @@ int check_archive(int tar_fd) {
  *         any other value otherwise.
  */
 int exists(int tar_fd, char *path) {
+    void* buf[512];
+    read(tar_fd, buf, 512);
+    int off_set = 512;
+    tar_header_t* header = (tar_header_t*) buf;
+    while(!strcmp(header->name,"")){
+        if(strcmp(header->name, path)){
+            printf("fichier existe");
+            return 1;
+        }
+        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
+        off_set += file_size;
+        pread(tar_fd, buf, 512, off_set);
+    }
+    printf("Fichier non existant");
     return 0;
+    
 }
 
 /**
