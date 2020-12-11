@@ -20,26 +20,37 @@
 int check_archive(int tar_fd) {
     void* buf[512];
     read(tar_fd, buf, 512);
-    int off_set = 512;
+    int off_set = 0;
     
     tar_header_t* header = (tar_header_t*) buf;
-    printf("%s\n", header->name);
-    printf("la condition de boucle est : %d\n", !strcmp(header->name,""));
     int rep = 0;
-    while(!strcmp(header->name,"")){
+    while(strcmp(header->name,"")){
+        printf("#### NAME = %s\n", header->name);
         rep++;
-        printf("Je boucle\n");
-        if(!strcmp(header->magic, "ustar")){
+        printf("Magic : %s\n", header->magic);
+        if(strcmp(header->magic, "ustar")){
             return -1;
         }
-        if(!strcmp(header->version, "00")){
+        printf("Version : %s\n", header->version);
+        char* str1 = "00";
+        char* str2 = getlogin();
+        char * str3 = (char *) malloc(1 + strlen(str1)+ strlen(str2) );
+        strcpy(str3, str1);
+        strcat(str3, str2);
+        if(strcmp(header->version, str3)){
             return -2;
         }
+        printf("Chksum : %s\n", header->chksum);
         if(!strcmp(header->chksum, "chksum(header)")){
             return -3;
         }
-        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
-        off_set += file_size;
+        printf("size = %ld\n", TAR_INT(header->size));
+        printf("size/512 = %ld\n", TAR_INT(header->size)/512);
+        printf("size mod 512 = %d\n", (TAR_INT(header->size)%512>0)?1:0);
+
+        int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
+        off_set += 512 + file_size;
+        printf("Offset = %d\n", off_set);
         pread(tar_fd, buf, 512, off_set);
     }
     return rep;
@@ -59,11 +70,11 @@ int exists(int tar_fd, char *path) {
     read(tar_fd, buf, 512);
     int off_set = 0;
     tar_header_t* header = (tar_header_t*) buf;
-    while(!strcmp(header->name,"")){
-        if(strcmp(header->name, path)){
+    while(strcmp(header->name,"")){
+        if(!strcmp(header->name, path)){
             return 1;
         }
-        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
+        int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
     }
@@ -82,11 +93,11 @@ int exists(int tar_fd, char *path) {
 int is_dir(int tar_fd, char *path) {
     void* buf[512];
     read(tar_fd, buf, 512);
-    int off_set = 512;
+    int off_set = 0;
     tar_header_t* header = (tar_header_t*) buf;
-    while(!strcmp(header->name,path)){
-        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
-        off_set += file_size;
+    while(strcmp(header->name,path)){
+        int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
+        off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
     }
     if(!strcmp(header->name,"") && header->typeflag == '5'){
@@ -107,11 +118,11 @@ int is_dir(int tar_fd, char *path) {
 int is_file(int tar_fd, char *path) {
     void* buf[512];
     read(tar_fd, buf, 512);
-    int off_set = 512;
+    int off_set = 0;
     tar_header_t* header = (tar_header_t*) buf;
-    while(!strcmp(header->name,path)){
-        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
-        off_set += file_size;
+    while(strcmp(header->name,path)){
+        int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
+        off_set += 512 + file_size;
         pread(tar_fd, buf, 512, off_set);
     }
     if(!strcmp(header->name,"") && (header->typeflag == '0' || header->typeflag == '\0')){
@@ -131,14 +142,14 @@ int is_file(int tar_fd, char *path) {
 int is_symlink(int tar_fd, char *path) {
     void* buf[512];
     read(tar_fd, buf, 512);
-    int off_set = 512;
+    int off_set = 0;
     tar_header_t* header = (tar_header_t*) buf;
-    while(!strcmp(header->name,path)){
-        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
-        off_set += file_size;
+    while(strcmp(header->name,path)){
+        int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
+        off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
     }
-    if(!strcmp(header->name,"") && header->typeflag == '2'){
+    if(strcmp(header->name,"") && header->typeflag == '2'){
         return 1;
     }
     return 0;
