@@ -24,6 +24,7 @@ int check_archive(int tar_fd) {
     tar_header_t* header = (tar_header_t*) buf;
     int rep = 0;
     while(!strcmp(header->name,"")){
+        rep++;
         printf("Je boucle\n");
         if(!strcmp(header->magic, "ustar")){
             return -1;
@@ -37,7 +38,6 @@ int check_archive(int tar_fd) {
         char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
         off_set += file_size;
         pread(tar_fd, buf, 512, off_set);
-        rep++;
     }
     return rep;
 }
