@@ -25,6 +25,7 @@ void debug_dump(const uint8_t *bytes, size_t len) {
 }
 
 int main(int argc, char **argv) {
+    printf("TESTS:");
     if (argc < 2) {
         printf("Usage: %s tar_file\n", argv[0]);
         return -1;
@@ -35,17 +36,44 @@ int main(int argc, char **argv) {
         perror("open(tar_file)");
         return -1;
     }
-
+    //Check archive
     int ret = check_archive(fd);
     printf("check_archive returned %d\n", ret);
 
+    //exists
     char* p1 = "te.c";
     int ret1 = exists(fd, p1);
-    printf("exists1 returned %d\n", ret1);
+    printf("exists1 of '%s' returned %d\n", p1, ret1);
 
     char* p2 = "lib_tar.c";
     int ret2 = exists(fd, p2);
-    printf("exists2 returned %d\n", ret2);
+    printf("exists2 of '%s' returned %d\n", p2, ret2);
+
+    //is_file
+    char* file = "lib_tar.c";
+    int ret3 = is_file(fd, file);
+    printf("is_file of '%s' returned %d\n", file, ret3);
+
+    char* file1 = "testdir/";
+    int ret4 = is_file(fd, file1);
+    printf("is_file of '%s' returned %d\n", file1, ret4);
+
+    char* file2 = "abc.c";
+    int ret5 = is_file(fd, file2);
+    printf("is_file of '%s' returned %d\n", file2, ret5);
+
+    //is_dir
+    char* dir = "testdir/";
+    int ret6 = is_dir(fd, dir);
+    printf("is_dir of '%s' returned %d\n", dir, ret6);
+
+    char* dir1 = "lib_tar.c";
+    int ret7 = is_dir(fd, dir1);
+    printf("is_dir of '%s' returned %d\n", dir1, ret7);
+
+    char* dir2 = "notthere/";
+    int ret8 = is_dir(fd, dir2);
+    printf("is_dir of '%s' returned %d\n", dir2, ret8);
 
     return 0;
 }
