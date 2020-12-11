@@ -39,5 +39,13 @@ int main(int argc, char **argv) {
     int ret = check_archive(fd);
     printf("check_archive returned %d\n", ret);
 
+    char* p1 = "te.c";
+    int ret1 = exists(fd, p1);
+    printf("exists1 returned %d\n", ret1);
+
+    char* p2 = "lib_tar.c";
+    int ret2 = exists(fd, p2);
+    printf("exists2 returned %d\n", ret2);
+
     return 0;
 }
