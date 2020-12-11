@@ -93,8 +93,8 @@ int is_dir(int tar_fd, char *path) {
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
-        if(strcmp(header->name, "")){
-            break;
+        if(!strcmp(header->name, "")){
+            return 0;
         }
     }
     if(header->typeflag == DIRTYPE){
@@ -121,8 +121,8 @@ int is_file(int tar_fd, char *path) {
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512 + file_size;
         pread(tar_fd, buf, 512, off_set);
-        if(strcmp(header->name, "")){
-            break;
+        if(!strcmp(header->name, "")){
+            return 0;
         }
     }
     if(header->typeflag == REGTYPE || header->typeflag == AREGTYPE || header->typeflag == LNKTYPE){
@@ -148,8 +148,8 @@ int is_symlink(int tar_fd, char *path) {
         int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
         off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
-        if(strcmp(header->name, "")){
-            break;
+        if(!strcmp(header->name, "")){
+            return 0;
         }
     }
     if(header->typeflag == SYMTYPE){
