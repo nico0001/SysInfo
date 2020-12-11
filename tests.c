@@ -75,5 +75,18 @@ int main(int argc, char **argv) {
     int ret8 = is_dir(fd, dir2);
     printf("is_dir of '%s' returned %d\n", dir2, ret8);
 
+    //is_symlink
+    char* s = "testlink.c";
+    int ret9 = is_symlink(fd, s);
+    printf("is_symlink of '%s' returned %d\n", s, ret9);
+
+    char* s1 = "lib_tar.c";
+    int ret10 = is_symlink(fd, s1);
+    printf("is_symlink of '%s' returned %d\n", s1, ret10);
+
+    char* s2 = "testdir/";
+    int ret11 = is_symlink(fd, s2);
+    printf("is_symlink of '%s' returned %d\n", s2, ret11);
+
     return 0;
 }
