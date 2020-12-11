@@ -21,7 +21,10 @@ int check_archive(int tar_fd) {
     void* buf[512];
     read(tar_fd, buf, 512);
     int off_set = 512;
+    
     tar_header_t* header = (tar_header_t*) buf;
+    printf("%s\n", header->name);
+    printf("la condition de boucle est : %d\n", !strcmp(header->name,""));
     int rep = 0;
     while(!strcmp(header->name,"")){
         rep++;
@@ -54,18 +57,17 @@ int check_archive(int tar_fd) {
 int exists(int tar_fd, char *path) {
     void* buf[512];
     read(tar_fd, buf, 512);
-    int off_set = 512;
+    int off_set = 0;
     tar_header_t* header = (tar_header_t*) buf;
     while(!strcmp(header->name,"")){
         if(strcmp(header->name, path)){
             return 1;
         }
         char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
-        off_set += file_size;
+        off_set += 512+file_size;
         pread(tar_fd, buf, 512, off_set);
     }
     return 0;
-    
 }
 
 /**
@@ -78,6 +80,18 @@ int exists(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_dir(int tar_fd, char *path) {
+    void* buf[512];
+    read(tar_fd, buf, 512);
+    int off_set = 512;
+    tar_header_t* header = (tar_header_t*) buf;
+    while(!strcmp(header->name,path)){
+        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
+        off_set += file_size;
+        pread(tar_fd, buf, 512, off_set);
+    }
+    if(!strcmp(header->name,"") && header->typeflag == '5'){
+        return 1;
+    }
     return 0;
 }
 
@@ -91,6 +105,18 @@ int is_dir(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_file(int tar_fd, char *path) {
+    void* buf[512];
+    read(tar_fd, buf, 512);
+    int off_set = 512;
+    tar_header_t* header = (tar_header_t*) buf;
+    while(!strcmp(header->name,path)){
+        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
+        off_set += file_size;
+        pread(tar_fd, buf, 512, off_set);
+    }
+    if(!strcmp(header->name,"") && (header->typeflag == '0' || header->typeflag == '\0')){
+        return 1;
+    }
     return 0;
 }
 
@@ -103,6 +129,18 @@ int is_file(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int is_symlink(int tar_fd, char *path) {
+    void* buf[512];
+    read(tar_fd, buf, 512);
+    int off_set = 512;
+    tar_header_t* header = (tar_header_t*) buf;
+    while(!strcmp(header->name,path)){
+        char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
+        off_set += file_size;
+        pread(tar_fd, buf, 512, off_set);
+    }
+    if(!strcmp(header->name,"") && header->typeflag == '2'){
+        return 1;
+    }
     return 0;
 }
 
