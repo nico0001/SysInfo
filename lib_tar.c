@@ -24,7 +24,6 @@ int check_archive(int tar_fd) {
     pread(tar_fd, buf, 512, 0);
     tar_header_t* header = (tar_header_t*) buf;
     while(strcmp(header->name,"")){
-        printf("name = %s\n", header->name);
         rep++;
         if(strcmp(header->magic, "ustar")){
             return -1;

@@ -25,7 +25,7 @@ void debug_dump(const uint8_t *bytes, size_t len) {
 }
 
 int main(int argc, char **argv) {
-    printf("TESTS:");
+    printf("#### TESTS ####\n");
     if (argc < 2) {
         printf("Usage: %s tar_file\n", argv[0]);
         return -1;
