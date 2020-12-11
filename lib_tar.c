@@ -39,7 +39,6 @@ int check_archive(int tar_fd) {
         pread(tar_fd, buf, 512, off_set);
         rep++;
     }
-    printf("Fichier non existant\n");
     return rep;
 }
 
@@ -59,14 +58,12 @@ int exists(int tar_fd, char *path) {
     tar_header_t* header = (tar_header_t*) buf;
     while(!strcmp(header->name,"")){
         if(strcmp(header->name, path)){
-            printf("fichier existe");
             return 1;
         }
         char file_size = (TAR_INT(header->size)/512 + TAR_INT(header->size)%512) * 512;
         off_set += file_size;
         pread(tar_fd, buf, 512, off_set);
     }
-    printf("Fichier non existant");
     return 0;
     
 }
