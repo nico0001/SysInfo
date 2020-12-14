@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     // list()
     size_t* psize, size;
     size = 2;
-    char* buf[512];
+    char* buf[100];
     psize  = &size;
     ssize_t ret12 = list(fd, s2, buf, psize);
     printf("list returned %ld\n", ret12);
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
     char* s3 = "testdirlink.c";
     size_t* psize1, size1;
     size1 = 9;
-    char* buf1[512];
+    char* buf1[100];
     psize1  = &size1;
     ssize_t ret13 = list(fd, s3, buf1, psize1);
     printf("list returned %ld\n", ret13);

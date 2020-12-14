@@ -191,7 +191,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
             return 0;
         }
     }
-    if (is_dir(tar_fd, path)){
+    if (header->typeflag==DIRTYPE){
         off_set = 0;
         int count_entry = 0;
         pread(tar_fd, buf, 512, off_set);
@@ -209,18 +209,17 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
                             i = strlen(currname)-1;
                         }
                     }
-                    
                 }
                 //printf("\n");
                 //printf("no_slash = %d\n", no_slash);
                 if(no_slash==0){
                     //printf("currname = %s\n", currname);
-                    memcpy(*(entries+count_entry), currname, strlen(currname));
+                    memcpy(*(entries+count_entry), currname+strlen(path), strlen(currname)-strlen(path));
                     count_entry++;
                 }
-                else if (no_slash==1 && is_dir(tar_fd, currname)){
+                else if (no_slash==1 && header->typeflag==DIRTYPE){
                     //printf("currname dir = %s\n", currname);
-                    memcpy(*(entries+count_entry), currname, strlen(currname));
+                    memcpy(*(entries+count_entry), currname+strlen(path), strlen(currname)-strlen(path));
                     count_entry++;
                 }
                 //printf("%d Fichier trouvé = %s\n", count_entry, currname);
@@ -238,7 +237,7 @@ int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
         }
         return 1;
     }
-    if (is_symlink(tar_fd, path)){
+    if (header->typeflag==SYMTYPE){
         char* linkname = header->linkname;
         strcat(linkname, "/\0");
         return list(tar_fd, linkname, entries, no_entries);
@@ -279,9 +278,8 @@ ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *
         }
     }
     
-    if(is_file(tar_fd, header->name)){
+    if(header->typeflag==REGTYPE || header->typeflag==AREGTYPE || header->typeflag==LNKTYPE){
         ssize_t file_size = TAR_INT(header->size);
-        //printf("size = %ld\n", file_size);
         if (offset>file_size){
             return -2;
         }
@@ -291,7 +289,7 @@ ssize_t read_file(int tar_fd, char *path, size_t offset, uint8_t *dest, size_t *
         pread(tar_fd, dest, *len, tar_offset + 512 + offset);
         return file_size-*len - offset;
     }
-    if(is_symlink(tar_fd, header->name)){
+    if(header->typeflag==SYMTYPE){
         return read_file(tar_fd, header->linkname, offset, dest, len);
     }
     return -1;
