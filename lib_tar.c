@@ -177,6 +177,73 @@ int is_symlink(int tar_fd, char *path) {
  *         any other value otherwise.
  */
 int list(int tar_fd, char *path, char **entries, size_t *no_entries) {
+    char buf[512];
+    int off_set = 0;
+    pread(tar_fd, buf, 512, off_set);
+    tar_header_t* header = (tar_header_t*) buf;
+    while(strcmp(header->name,path)){
+        int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
+        off_set += 512+file_size;
+        pread(tar_fd, buf, 512, off_set);
+        // Fichier non trouvé
+        if(!strcmp(header->name, "")){
+            *no_entries=0;
+            return 0;
+        }
+    }
+    if (is_dir(tar_fd, path)){
+        off_set = 0;
+        int count_entry = 0;
+        pread(tar_fd, buf, 512, off_set);
+        char* currname = header->name;
+        while(strcmp(currname,"")){
+            currname = header->name;
+            if(!memcmp(currname, path, strlen(path)) && strlen(currname)>strlen(path)){
+                // count the number of '/' in the current name
+                int no_slash = 0;
+                for (int i = strlen(path); i!=strlen(currname);i++){
+                    //printf("%c", *(currname+i));
+                    if(*(currname+i)=='/'){
+                        no_slash++;
+                        if(no_slash==2){
+                            i = strlen(currname)-1;
+                        }
+                    }
+                    
+                }
+                //printf("\n");
+                //printf("no_slash = %d\n", no_slash);
+                if(no_slash==0){
+                    //printf("currname = %s\n", currname);
+                    memcpy(*(entries+count_entry), currname, strlen(currname));
+                    count_entry++;
+                }
+                else if (no_slash==1 && is_dir(tar_fd, currname)){
+                    //printf("currname dir = %s\n", currname);
+                    memcpy(*(entries+count_entry), currname, strlen(currname));
+                    count_entry++;
+                }
+                //printf("%d Fichier trouvé = %s\n", count_entry, currname);
+                if(count_entry>*no_entries){
+                    *no_entries = count_entry-1;
+                    return 1;
+                }
+            }
+            int file_size = (TAR_INT(header->size)/512 + ((TAR_INT(header->size)%512>0)?1:0)) * 512;
+            off_set += 512 + file_size;
+            pread(tar_fd, buf, 512, off_set);
+        }
+        if(count_entry<*no_entries){
+            *no_entries = count_entry;
+        }
+        return 1;
+    }
+    if (is_symlink(tar_fd, path)){
+        char* linkname = header->linkname;
+        strcat(linkname, "/\0");
+        return list(tar_fd, linkname, entries, no_entries);
+    }
+    *no_entries=0;
     return 0;
 }
 

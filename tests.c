@@ -88,23 +88,42 @@ int main(int argc, char **argv) {
     int ret11 = is_symlink(fd, s2);
     printf("is_symlink of '%s' returned %d\n", s2, ret11);
 
-    // read_file()
-    uint8_t buf[50];
+    // list()
     size_t* psize, size;
-    size = 50;
+    size = 2;
+    char* buf[512];
     psize  = &size;
-    ssize_t ret12 = read_file(fd, file, 0, buf, psize);
-    printf("read_file returned %ld\n", ret12);
-    printf("len = %ld\n", *psize);
-    debug_dump(buf, size);
+    ssize_t ret12 = list(fd, s2, buf, psize);
+    printf("list returned %ld\n", ret12);
+    printf("no_entries = %ld\n", *psize);
+    
 
-    uint8_t buf1[8191];
+    char* s3 = "testdirlink.c";
     size_t* psize1, size1;
-    size1 = 8191;
+    size1 = 9;
+    char* buf1[512];
     psize1  = &size1;
-    ssize_t ret13 = read_file(fd, s, 500, buf1, psize1);
-    printf("read_file returned %ld\n", ret13);
-    printf("len = %ld\n", *psize1);
-    //debug_dump(buf1, size1);
+    ssize_t ret13 = list(fd, s3, buf1, psize1);
+    printf("list returned %ld\n", ret13);
+    printf("no_entries = %ld\n", *psize1);
+
+    // read_file()
+    uint8_t buf3[50];
+    size_t* psize2, size2;
+    size2 = 50;
+    psize2  = &size2;
+    ssize_t ret14 = read_file(fd, file, 0, buf3, psize2);
+    printf("read_file returned %ld\n", ret14);
+    printf("len = %ld\n", *psize2);
+    //debug_dump(buf3, size2);
+
+    uint8_t buf4[8191];
+    size_t* psize3, size3;
+    size3 = 8191;
+    psize3  = &size3;
+    ssize_t ret15 = read_file(fd, s, 500, buf4, psize3);
+    printf("read_file returned %ld\n", ret15);
+    printf("len = %ld\n", *psize3);
+    //debug_dump(buf4, size3);
     return 0;
 }
